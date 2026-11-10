@@ -46,7 +46,6 @@ typedef struct s_sim
 	long			dongle_cooldown;
 	t_scheduler		scheduler;
 	long			start_time;
-	int				stop;
 	pthread_mutex_t print_mutex;
 	t_coder			*coders;
 	t_dongle		*dongles;

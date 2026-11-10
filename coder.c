@@ -6,13 +6,14 @@
 /*   By: nnagy <nnagy@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/09 15:32:15 by nnagy             #+#    #+#             */
-/*   Updated: 2026/11/09 19:22:29 by nnagy            ###   ########.fr       */
+/*   Updated: 2026/11/10 15:37:19 by nnagy            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-static int fill_coder(t_coder *coder, int i, t_sim *sim);
+static int fill_coders(t_coder *coder, int i, t_sim *sim);
+static void destroy_coders(t_sim *sim, int count);
 
 int init_coders(t_sim *sim)
 {
@@ -24,12 +25,16 @@ int init_coders(t_sim *sim)
 	i = 0;
 	while (i < sim->number_of_coders)
 	{
-		fill_coder(&sim->coders[i], i + 1, sim);
+		if (fill_coders(&sim->coders[i], i + 1, sim) != 0)
+		{
+			destroy_coders(sim, i);
+			return (1);
+		}
 		i++;
 	}
 }
 
-static int fill_coder(t_coder *coder, int id, t_sim *sim)
+static int fill_coders(t_coder *coder, int id, t_sim *sim)
 {
 	coder->id = id;
 	coder->compile_count = 0;
@@ -40,4 +45,18 @@ static int fill_coder(t_coder *coder, int id, t_sim *sim)
 	if (pthread_mutex_init(&coder->lock, NULL) != 0)
 		return (1);
 	return (0);
+}
+
+static void destroy_coders(t_sim *sim, int count)
+{
+	int i;
+
+	i = 0;
+	while (i < count)
+	{
+		pthread_mutex_destroy(&sim->coders[i].lock);
+		i++;
+	}
+	free(&sim->coders);
+	sim->coders = NULL;
 }
